@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14202b">
+<title>Дневник тренировок</title>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--ink:#14202b;--mut:#6b7885;--line:#d5dce3;--acc:#2f5bff;--accink:#fff;--ok:#1f9d6b;--bad:#c93b3b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10171e;--card:#18222c;--ink:#e8eef4;--mut:#8b98a5;--line:#2b3744;--acc:#6f8cff;--accink:#0b1220;--ok:#43c690;--bad:#ef7676}}
+:root[data-theme="dark"]{--bg:#10171e;--card:#18222c;--ink:#e8eef4;--mut:#8b98a5;--line:#2b3744;--acc:#6f8cff;--accink:#0b1220;--ok:#43c690;--bad:#ef7676}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Barlow,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+main{max-width:560px;margin:0 auto;padding:14px 14px 150px}
+h1{font:700 30px/1 "Barlow Condensed",Barlow,sans-serif;margin:6px 0 2px;letter-spacing:.2px}
+.date{color:var(--mut);margin-bottom:12px}
+.tabs{display:flex;gap:6px;margin:10px 0 14px}
+button{font:inherit;color:inherit;cursor:pointer}
+.tab{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);border-radius:10px;font-weight:600}
+.tab.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{padding:7px 14px;border:1px solid var(--line);background:var(--card);border-radius:999px;font-weight:600}
+.chip.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.ex{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.row{display:flex;gap:8px;align-items:center}
+input{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px;width:100%;min-width:0}
+input:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.nm{font:700 20px "Barlow Condensed",Barlow,sans-serif}
+.x{border:0;background:none;color:var(--mut);font-size:24px;padding:4px 8px}
+.hint{color:var(--mut);font-size:14px;margin:6px 0 8px}
+.set{padding:8px 0;border-top:1px dashed var(--line)}
+.nums{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:6px;align-items:center;text-align:center;color:var(--mut)}
+.nums input{text-align:center;font-weight:600;font-size:18px}
+.opts{display:flex;gap:6px;margin-top:6px}
+.opt{flex:1;padding:7px;border:1px solid var(--line);background:var(--bg);border-radius:9px;font-size:14px}
+.opt.l{color:var(--ok);border-color:var(--ok)}.opt.m{color:var(--acc);border-color:var(--acc)}.opt.h{color:var(--bad);border-color:var(--bad)}
+.opt.s{font-weight:700}
+.opts .x{flex:0 0 auto;font-size:20px}
+.add{width:100%;padding:11px;border:1px dashed var(--mut);background:none;border-radius:10px;color:var(--mut);font-weight:600;margin-top:6px}
+.pri{width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:var(--accink);font-weight:700;font-size:17px;margin-top:10px}
+.sec{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-weight:600;margin-top:8px}
+.note{margin-top:8px}
+.w{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.w b{font:700 19px "Barlow Condensed",Barlow,sans-serif}
+.w pre{white-space:pre-wrap;font:inherit;margin:8px 0;color:var(--mut)}
+.empty{color:var(--mut);text-align:center;padding:30px 10px}
+#bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));display:none;gap:6px;overflow-x:auto;white-space:nowrap;z-index:20}
+#bar.on{display:flex}
+#bar .chip{flex:0 0 auto;background:var(--bg)}
+#bar i{color:var(--mut);font-style:normal;align-self:center;font-size:14px}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;z-index:30;font-weight:600}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<div id="bar" aria-label="Подсказки"></div>
+<script>
+const K='gymlog1';
+let db={workouts:[],cur:null,sug:{},names:[],types:['Push','Pull']};
+try{const s=localStorage.getItem(K);if(s)db=Object.assign(db,JSON.parse(s))}catch(e){}
+let cloud=null,pt=null,syncTxt='Данные только на этом устройстве';
+function setSync(t){syncTxt=t;const e=document.getElementById('sync');if(e)e.textContent=t}
+const save=remote=>{if(remote!==true)db.ts=Date.now();try{localStorage.setItem(K,JSON.stringify(db))}catch(e){}if(remote!==true)pushMeta()};
+function pushMeta(){
+  if(!cloud)return;clearTimeout(pt);
+  pt=setTimeout(()=>{cloud.doc('meta').set({ts:db.ts||Date.now(),sug:db.sug,names:db.names,types:db.types,cur:db.cur}).catch(()=>setSync('Не удалось синхронизировать'))},1000);
+}
+function pushW(w){if(cloud)cloud.doc('w_'+w.id).set({w}).catch(()=>{})}
+function delW(id){if(cloud)cloud.doc('w_'+id).delete().catch(()=>{})}
+function applyRemote(snap){
+  let ch=false;
+  snap.docChanges().forEach(c=>{
+    const id=c.doc.id,d=c.doc.data();
+    if(id==='meta'){
+      if(c.type==='removed'||!d||!(d.ts>(db.ts||0)))return;
+      const a=document.activeElement;if(a&&a.dataset&&a.dataset.k)return;
+      db.sug=d.sug||{};db.names=d.names||[];db.types=d.types||db.types;if(d.cur)db.cur=d.cur;db.ts=d.ts;ch=true;
+    }else if(id.indexOf('w_')===0){
+      const wid=id.slice(2);
+      if(c.type==='removed'){const n=db.workouts.length;db.workouts=db.workouts.filter(w=>String(w.id)!==wid);if(db.workouts.length!==n)ch=true}
+      else if(d&&d.w&&!db.workouts.some(w=>w.id===d.w.id)){db.workouts.push(d.w);ch=true}
+    }
+  });
+  if(ch){db.workouts.sort((a,b)=>a.id-b.id);save(true);render()}
+}
+async function initCloud(){
+  try{
+    if(!window.claude)return;
+    const [user,dbm]=await Promise.all([claude.use('user'),claude.use('db')]);
+    if(!user||!dbm)return;
+    const uid=await user.id();if(!uid)return;
+    cloud=dbm.collection('data/users/'+uid);
+    let first=true;setSync('Синхронизация…');
+    cloud.onSnapshot(snap=>{
+      applyRemote(snap);
+      if(first){
+        first=false;
+        const ids=new Set(snap.docs.map(d=>d.id));
+        db.workouts.forEach(w=>{if(!ids.has('w_'+w.id))pushW(w)});
+        const m=snap.docs.find(d=>d.id==='meta'),rts=m&&m.data()?m.data().ts:0;
+        if(!rts||(db.ts||0)>rts){db.ts=db.ts||Date.now();pushMeta()}
+      }
+      setSync('Синхронизировано с аккаунтом');
+    },()=>setSync('Нет связи, записи сохранены на устройстве'));
+  }catch(e){}
+}
+const today=()=>new Date().toISOString().slice(0,10);
+const fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const newSet=()=>({w:'',r:'',n:'',side:'',eff:''});
+const newEx=()=>({name:'',sets:[newSet()],note:''});
+const newCur=()=>({id:Date.now(),date:today(),type:db.types[0]||'',exs:[newEx()]});
+if(!db.cur)db.cur=newCur();
+let tab='today',open=null,bar=document.getElementById('bar'),app=document.getElementById('app');
+const SIDE={'':'Оба','П':'Правая','Л':'Левая'},SIDES=['','П','Л'];
+const EFF=['','л','с','т'],EFFN={'':'Нагрузка','л':'Легко','с':'Средне','т':'Тяжело'};
+
+function lastEx(name){
+  const n=name.trim().toLowerCase();if(!n)return null;
+  for(let i=db.workouts.length-1;i>=0;i--){const e=db.workouts[i].exs.find(x=>x.name.trim().toLowerCase()===n);if(e)return Object.assign({date:db.workouts[i].date},e)}
+  return null;
+}
+const setTxt=s=>(s.side?s.side+': ':'')+(s.w||'?')+'×'+(s.r||'?')+(s.n&&s.n!=='1'?'×'+s.n:'')+(s.eff?' '+EFFN[s.eff].toLowerCase():'');
+function wTxt(w){
+  return fmt(w.date)+(w.type?' · '+w.type:'')+'\n'+w.exs.filter(e=>e.name.trim()).map(e=>e.name+'\n'+e.sets.map(setTxt).join('\n')+(e.note?'\n'+e.note:'')).join('\n\n');
+}
+function addSug(name,k,v){
+  v=String(v||'').trim();if(!v)return;
+  for(const key of [name||'*','*']){
+    const o=(db.sug[key]=db.sug[key]||{});const a=(o[k]=(o[k]||[]).filter(x=>x!==v));a.unshift(v);o[k]=a.slice(0,10);
+  }
+}
+function commit(){
+  db.cur.exs.forEach(e=>{
+    const nm=e.name.trim();if(!nm)return;
+    db.names=[nm].concat(db.names.filter(x=>x!==nm)).slice(0,80);
+    e.sets.forEach(s=>{addSug(nm,'w',s.w);addSug(nm,'r',s.r);addSug(nm,'n',s.n)});
+    addSug(nm,'note',e.note);
+  });
+  save();
+}
+function render(){
+  const c=db.cur;
+  let h='<h1>Дневник тренировок</h1><div class="hint" id="sync">'+syncTxt+'</div><div class="tabs"><button class="tab '+(tab==='today'?'on':'')+'" data-a="tab" data-v="today">Тренировка</button><button class="tab '+(tab==='hist'?'on':'')+'" data-a="tab" data-v="hist">История ('+db.workouts.length+')</button></div>';
+  if(tab==='today'){
+    h+='<div class="date">'+fmt(c.date)+'</div><div class="chips">'+db.types.map(t=>'<button class="chip '+(c.type===t?'on':'')+'" data-a="type" data-v="'+esc(t)+'">'+esc(t)+'</button>').join('')+'<button class="chip" data-a="newtype">+ Свой день</button></div>';
+    c.exs.forEach((e,i)=>{
+      const l=lastEx(e.name);
+      h+='<section class="ex"><div class="row"><input class="nm" data-k="name" data-e="'+i+'" placeholder="Упражнение" value="'+esc(e.name)+'" autocomplete="off"><button class="x" data-a="delex" data-e="'+i+'" aria-label="Удалить упражнение">×</button></div>';
+      if(l)h+='<div class="hint">В прошлый раз ('+fmt(l.date)+'): '+esc(l.sets.map(setTxt).join('; '))+(l.note?'<br>'+esc(l.note):'')+'</div>';
+      e.sets.forEach((s,j)=>{
+        h+='<div class="set"><div class="nums"><input data-k="w" data-e="'+i+'" data-s="'+j+'" inputmode="decimal" placeholder="кг" value="'+esc(s.w)+'"><span>×</span><input data-k="r" data-e="'+i+'" data-s="'+j+'" inputmode="numeric" placeholder="повт." value="'+esc(s.r)+'"><span>×</span><input data-k="n" data-e="'+i+'" data-s="'+j+'" inputmode="numeric" placeholder="подх." value="'+esc(s.n)+'"></div>'+
+        '<div class="opts"><button class="opt '+(s.side?'s':'')+'" data-a="side" data-e="'+i+'" data-s="'+j+'">'+SIDE[s.side]+'</button><button class="opt '+(s.eff?'s '+s.eff:'')+'" data-a="eff" data-e="'+i+'" data-s="'+j+'">'+EFFN[s.eff]+'</button><button class="x" data-a="delset" data-e="'+i+'" data-s="'+j+'" aria-label="Удалить подход">×</button></div></div>';
+      });
+      h+='<button class="add" data-a="addset" data-e="'+i+'">+ Подход</button><input class="note" data-k="note" data-e="'+i+'" placeholder="Заметка: техника, ощущения, план" value="'+esc(e.note)+'" autocomplete="off"></section>';
+    });
+    h+='<button class="add" data-a="addex">+ Упражнение</button><button class="pri" data-a="finish">Завершить тренировку</button><button class="sec" data-a="copycur">Скопировать текстом</button>';
+  }else{
+    h+=db.workouts.length?db.workouts.slice().reverse().map(w=>'<div class="w"><div class="row" style="justify-content:space-between"><b>'+fmt(w.date)+(w.type?' · '+esc(w.type):'')+'</b><button class="x" data-a="open" data-v="'+w.id+'" aria-label="Развернуть">'+(open===w.id?'−':'+')+'</button></div>'+
+      (open===w.id?'<pre>'+esc(wTxt(w).split('\n').slice(1).join('\n'))+'</pre><div class="opts"><button class="opt" data-a="repeat" data-v="'+w.id+'">Повторить</button><button class="opt" data-a="copyw" data-v="'+w.id+'">Копировать</button><button class="opt h" data-a="delw" data-v="'+w.id+'">Удалить</button></div>':'<div class="hint">'+esc(w.exs.filter(e=>e.name).map(e=>e.name).join(', '))+'</div>')+'</div>').join(''):'<div class="empty">Пока нет записей. Завершённые тренировки появятся здесь.</div>';
+  }
+  app.innerHTML=h;
+}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1600)}
+function copy(t){
+  const done=()=>toast('Скопировано');
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(done,()=>fb());else fb();
+  function fb(){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){toast('Не удалось скопировать')}a.remove()}
+}
+function sugFor(t){
+  const k=t.dataset.k,e=db.cur.exs[+t.dataset.e];
+  if(k==='name')return db.names;
+  const o=db.sug[e.name.trim()]||db.sug['*']||{};
+  return o[k]||[];
+}
+function showBar(t){
+  const a=sugFor(t).filter(x=>x!==t.value);
+  if(!a.length){bar.className='';return}
+  bar.className='on';bar.innerHTML='<i>Подсказки:</i>'+a.map(x=>'<button class="chip" data-p="'+esc(x)+'">'+esc(x)+'</button>').join('');
+  bar._t=t;
+}
+bar.addEventListener('pointerdown',e=>{
+  const b=e.target.closest('[data-p]');if(!b)return;e.preventDefault();
+  const t=bar._t;t.value=b.dataset.p;
+  t.dispatchEvent(new Event('input',{bubbles:true}));t.dispatchEvent(new Event('change',{bubbles:true}));
+  const again=document.querySelector('[data-k="'+t.dataset.k+'"][data-e="'+t.dataset.e+'"]'+(t.dataset.s!=null?'[data-s="'+t.dataset.s+'"]':''));
+  if(again){again.focus();showBar(again)}
+});
+app.addEventListener('input',e=>{
+  const t=e.target,k=t.dataset.k;if(!k)return;
+  const ex=db.cur.exs[+t.dataset.e];
+  if(k==='name')ex.name=t.value;else if(k==='note')ex.note=t.value;else ex.sets[+t.dataset.s][k]=t.value;
+  save();showBar(t);
+});
+app.addEventListener('focusin',e=>{if(e.target.dataset.k)showBar(e.target)});
+app.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.dataset.k)bar.className=''},150));
+app.addEventListener('change',e=>{
+  const t=e.target;if(!t.dataset.k)return;
+  commit();
+  if(t.dataset.k==='name'){
+    const ex=db.cur.exs[+t.dataset.e],l=lastEx(ex.name);
+    const blank=ex.sets.length===1&&!ex.sets[0].w&&!ex.sets[0].r&&!ex.sets[0].n;
+    if(l&&blank){ex.sets=l.sets.map(s=>Object.assign({},s));save();render()}
+  }
+});
+app.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;
+  const a=b.dataset.a,c=db.cur,i=+b.dataset.e,j=+b.dataset.s,v=b.dataset.v;
+  if(a==='tab'){tab=v}
+  else if(a==='type'){c.type=v}
+  else if(a==='newtype'){const n=prompt('Название дня (например, Legs)');if(n&&n.trim()){db.types.push(n.trim());c.type=n.trim()}}
+  else if(a==='addex'){c.exs.push(newEx())}
+  else if(a==='delex'){c.exs.splice(i,1);if(!c.exs.length)c.exs.push(newEx())}
+  else if(a==='addset'){const s=c.exs[i].sets;s.push(s.length?Object.assign({},s[s.length-1]):newSet())}
+  else if(a==='delset'){const s=c.exs[i].sets;s.splice(j,1);if(!s.length)s.push(newSet())}
+  else if(a==='side'){const s=c.exs[i].sets[j];s.side=SIDES[(SIDES.indexOf(s.side)+1)%3]}
+  else if(a==='eff'){const s=c.exs[i].sets[j];s.eff=EFF[(EFF.indexOf(s.eff)+1)%4]}
+  else if(a==='finish'){
+    commit();c.exs=c.exs.filter(x=>x.name.trim());
+    if(!c.exs.length){toast('Добавь хотя бы одно упражнение');return}
+    db.workouts.push(c);pushW(c);db.cur=newCur();tab='hist';open=c.id;toast('Тренировка сохранена');
+  }
+  else if(a==='copycur'){copy(wTxt(c));return}
+  else if(a==='open'){open=open===+v?null:+v}
+  else if(a==='copyw'){copy(wTxt(db.workouts.find(w=>w.id===+v)));return}
+  else if(a==='repeat'){const w=db.workouts.find(x=>x.id===+v);db.cur={id:Date.now(),date:today(),type:w.type,exs:w.exs.map(x=>({name:x.name,note:'',sets:x.sets.map(s=>Object.assign({},s))}))};tab='today';window.scrollTo(0,0)}
+  else if(a==='delw'){if(confirm('Удалить эту тренировку?')){db.workouts=db.workouts.filter(w=>w.id!==+v);delW(+v)}}
+  save();render();
+});
+render();initCloud();
+</script>
+</body>
+</html>
