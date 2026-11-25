@@ -47,6 +47,8 @@ input:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px
 .w b{font:700 19px "Barlow Condensed",Barlow,sans-serif}
 .w pre{white-space:pre-wrap;font:inherit;margin:8px 0;color:var(--mut)}
 .empty{color:var(--mut);text-align:center;padding:30px 10px}
+.dt{width:auto;margin-bottom:12px;font-weight:600}
+textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;min-height:200px;margin-bottom:6px}
 #bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));display:none;gap:6px;overflow-x:auto;white-space:nowrap;z-index:20}
 #bar.on{display:flex}
 #bar .chip{flex:0 0 auto;background:var(--bg)}
@@ -84,7 +86,7 @@ function applyRemote(snap){
       else if(d&&d.w&&!db.workouts.some(w=>w.id===d.w.id)){db.workouts.push(d.w);ch=true}
     }
   });
-  if(ch){db.workouts.sort((a,b)=>a.id-b.id);save(true);render()}
+  if(ch){sortW();save(true);render()}
 }
 async function initCloud(){
   try{
@@ -114,10 +116,68 @@ const newSet=()=>({w:'',r:'',n:'',side:'',eff:''});
 const newEx=()=>({name:'',sets:[newSet()],note:''});
 const newCur=()=>({id:Date.now(),date:today(),type:db.types[0]||'',exs:[newEx()]});
 if(!db.cur)db.cur=newCur();
-let tab='today',open=null,bar=document.getElementById('bar'),app=document.getElementById('app');
+let tab='today',open=null,impText='',imp=null,impMsg='',bar=document.getElementById('bar'),app=document.getElementById('app');
 const SIDE={'':'Оба','П':'Правая','Л':'Левая'},SIDES=['','П','Л'];
 const EFF=['','л','с','т'],EFFN={'':'Нагрузка','л':'Легко','с':'Средне','т':'Тяжело'};
 
+function sortW(){db.workouts.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.id-b.id)}
+function learn(w){w.exs.forEach(e=>{const nm=e.name.trim();if(!nm)return;db.names=[nm].concat(db.names.filter(x=>x!==nm)).slice(0,80);e.sets.forEach(s=>{addSug(nm,'w',s.w);addSug(nm,'r',s.r);addSug(nm,'n',s.n)});addSug(nm,'note',e.note)})}
+const dup=w=>db.workouts.some(x=>x.date===w.date&&x.type===w.type);
+function parseNotes(text){
+  const out=[];let w=null,ex=null,side='';
+  const DAYS=/(понедельник|вторник|сред[ауы]|четверг|пятниц[ауы]|суббот[ауы]|воскресень[ея])/i;
+  const TYPES=[['push','Push'],['pull','Pull'],['legs','Legs'],['ноги','Ноги'],['верх','Верх'],['низ','Низ'],['full','Full body']];
+  const now=new Date(),p2=n=>String(n).padStart(2,'0'),cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+  const SET=/(\d+(?:\.\d+)?)x(\d+)(?:x(\d+))?/g;
+  const effOf=t=>{const h=/тяж/i.test(t),l=/легк|л[её]гк/i.test(t),m=/средн/i.test(t);return (m||(h&&l))?'с':h?'т':l?'л':''};
+  text.split(/\r?\n/).forEach(raw=>{
+    let line=raw.replace(/[\u00a0\t]/g,' ').replace(/(\d)\s*кг\.?/gi,'$1').replace(/(\d),(\d)/g,'$1.$2').replace(/(\d)\s*[хХxX×*]\s*(?=\d)/g,'$1x');
+    const bullet=/^\s*[•·▪●○◦\-–—*]\s*/.test(line);
+    line=line.replace(/^[\s•·▪●○◦\-–—*]+/,'').trim();
+    if(!line||/^\d{1,2}:\d{2}$/.test(line))return;
+    const hm=line.match(/^(\d{1,2})[.\/](\d{1,2})(?:[.\/](\d{2,4}))?\.?\s*[,:\-–—]?\s*(.*)$/);
+    if(hm&&!/\dx\d/.test(line)&&!/символов/i.test(line)){
+      const rest=hm[4],rl=rest.toLowerCase();let type='';
+      for(const t of TYPES){if(rl.indexOf(t[0])>=0){type=t[1];break}}
+      const d=+hm[1],mo=+hm[2];
+      if((type||DAYS.test(rest))&&mo>=1&&mo<=12&&d>=1&&d<=31){
+        let y=hm[3]?(hm[3].length===2?2000+(+hm[3]):+hm[3]):now.getFullYear();
+        if(!hm[3]&&new Date(y,mo-1,d)>new Date(now.getTime()+2*864e5))y--;
+        w={id:0,date:y+'-'+p2(mo)+'-'+p2(d),type:type,exs:[]};out.push(w);ex=null;side='';return;
+      }
+    }
+    if(!w)return;
+    let ln=line;const sm=ln.toLowerCase().match(/^(правая|правый|правой|правую|прав|левая|левый|левой|левую|лев)(?=[\s:.\-–]|$)|^([пл])(?=\s*:)/);
+    if(sm){const wd=sm[1]||sm[2];side=wd.charAt(0)==='п'?'П':'Л';ln=ln.slice(sm[0].length).replace(/^[\s:.\-–]+/,'')}
+    if(!ln)return;
+    const ms=[...ln.matchAll(SET)];
+    if(/^\d/.test(ln)&&ms.length&&ms[0].index===0){
+      if(!ex){ex={name:'Без названия',sets:[],note:'',c:[]};w.exs.push(ex)}
+      ms.forEach((m,i)=>{
+        const end=m.index+m[0].length,nx=i+1<ms.length?ms[i+1].index:ln.length;
+        const cm=ln.slice(end,nx).replace(/^[\s,;:]+|[\s,;]+$/g,'');
+        ex.sets.push({w:m[1],r:m[2],n:m[3]||'',side:side,eff:effOf(cm)});
+        if(cm)ex.c.push((side?side+': ':'')+cm);
+      });
+      return;
+    }
+    const isName=!sm&&!/\d/.test(ln)&&ln.length<=45&&!/[:(]/.test(ln)&&(bullet||ln.charAt(0)!==ln.charAt(0).toLowerCase());
+    if(isName){ex={name:cap(ln.replace(/[:.\s]+$/,'')),sets:[],note:'',c:[]};w.exs.push(ex);side='';return}
+    if(ex)ex.c.push((side?side+': ':'')+ln);
+  });
+  return out.map(w=>{
+    w.exs=w.exs.filter(e=>e.sets.length||e.c.length).map(e=>({name:e.name,sets:e.sets.length?e.sets:[newSet()],note:e.c.join('; ')}));
+    return w;
+  }).filter(w=>w.exs.length);
+}
+function impView(){
+  let h='<div class="hint">Вставь текст из заметок. Каждая тренировка должна начинаться со строки с датой, например «14.11 Push» или «16.11. Понедельник pull».</div><textarea id="impt" placeholder="Вставь заметки сюда">'+esc(impText)+'</textarea><button class="pri" data-a="parse">Разобрать</button>';
+  if(impMsg)h+='<div class="hint">'+esc(impMsg)+'</div>';
+  if(imp&&imp.length){
+    h+='<div class="hint">Нашёл тренировок: '+imp.length+'. Проверь, всё ли верно.</div>'+imp.map(w=>'<div class="w"><b>'+fmt(w.date)+(w.type?' · '+esc(w.type):'')+'</b>'+(dup(w)?' <span class="hint">(уже есть, будет пропущена)</span>':'')+'<pre>'+esc(wTxt(w).split('\n').slice(1).join('\n'))+'</pre></div>').join('')+'<button class="pri" data-a="doimp">Добавить в историю</button><div class="hint">Любую тренировку потом можно поправить кнопкой «Править» в истории.</div>';
+  }
+  return h;
+}
 function lastEx(name){
   const n=name.trim().toLowerCase();if(!n)return null;
   for(let i=db.workouts.length-1;i>=0;i--){const e=db.workouts[i].exs.find(x=>x.name.trim().toLowerCase()===n);if(e)return Object.assign({date:db.workouts[i].date},e)}
@@ -144,9 +204,9 @@ function commit(){
 }
 function render(){
   const c=db.cur;
-  let h='<h1>Дневник тренировок</h1><div class="hint" id="sync">'+syncTxt+'</div><div class="tabs"><button class="tab '+(tab==='today'?'on':'')+'" data-a="tab" data-v="today">Тренировка</button><button class="tab '+(tab==='hist'?'on':'')+'" data-a="tab" data-v="hist">История ('+db.workouts.length+')</button></div>';
+  let h='<h1>Дневник тренировок</h1><div class="hint" id="sync">'+syncTxt+'</div><div class="tabs"><button class="tab '+(tab==='today'?'on':'')+'" data-a="tab" data-v="today">Тренировка</button><button class="tab '+(tab==='hist'?'on':'')+'" data-a="tab" data-v="hist">История ('+db.workouts.length+')</button><button class="tab '+(tab==='imp'?'on':'')+'" data-a="tab" data-v="imp">Импорт</button></div>';
   if(tab==='today'){
-    h+='<div class="date">'+fmt(c.date)+'</div><div class="chips">'+db.types.map(t=>'<button class="chip '+(c.type===t?'on':'')+'" data-a="type" data-v="'+esc(t)+'">'+esc(t)+'</button>').join('')+'<button class="chip" data-a="newtype">+ Свой день</button></div>';
+    h+='<input type="date" id="dt" class="dt" value="'+esc(c.date)+'"><div class="chips">'+db.types.map(t=>'<button class="chip '+(c.type===t?'on':'')+'" data-a="type" data-v="'+esc(t)+'">'+esc(t)+'</button>').join('')+'<button class="chip" data-a="newtype">+ Свой день</button></div>';
     c.exs.forEach((e,i)=>{
       const l=lastEx(e.name);
       h+='<section class="ex"><div class="row"><input class="nm" data-k="name" data-e="'+i+'" placeholder="Упражнение" value="'+esc(e.name)+'" autocomplete="off"><button class="x" data-a="delex" data-e="'+i+'" aria-label="Удалить упражнение">×</button></div>';
@@ -158,9 +218,9 @@ function render(){
       h+='<button class="add" data-a="addset" data-e="'+i+'">+ Подход</button><input class="note" data-k="note" data-e="'+i+'" placeholder="Заметка: техника, ощущения, план" value="'+esc(e.note)+'" autocomplete="off"></section>';
     });
     h+='<button class="add" data-a="addex">+ Упражнение</button><button class="pri" data-a="finish">Завершить тренировку</button><button class="sec" data-a="copycur">Скопировать текстом</button>';
-  }else{
+  }else if(tab==='imp'){h+=impView()}else{
     h+=db.workouts.length?db.workouts.slice().reverse().map(w=>'<div class="w"><div class="row" style="justify-content:space-between"><b>'+fmt(w.date)+(w.type?' · '+esc(w.type):'')+'</b><button class="x" data-a="open" data-v="'+w.id+'" aria-label="Развернуть">'+(open===w.id?'−':'+')+'</button></div>'+
-      (open===w.id?'<pre>'+esc(wTxt(w).split('\n').slice(1).join('\n'))+'</pre><div class="opts"><button class="opt" data-a="repeat" data-v="'+w.id+'">Повторить</button><button class="opt" data-a="copyw" data-v="'+w.id+'">Копировать</button><button class="opt h" data-a="delw" data-v="'+w.id+'">Удалить</button></div>':'<div class="hint">'+esc(w.exs.filter(e=>e.name).map(e=>e.name).join(', '))+'</div>')+'</div>').join(''):'<div class="empty">Пока нет записей. Завершённые тренировки появятся здесь.</div>';
+      (open===w.id?'<pre>'+esc(wTxt(w).split('\n').slice(1).join('\n'))+'</pre><div class="opts"><button class="opt" data-a="editw" data-v="'+w.id+'">Править</button><button class="opt" data-a="repeat" data-v="'+w.id+'">Повторить</button><button class="opt" data-a="copyw" data-v="'+w.id+'">Копировать</button><button class="opt h" data-a="delw" data-v="'+w.id+'">Удалить</button></div>':'<div class="hint">'+esc(w.exs.filter(e=>e.name).map(e=>e.name).join(', '))+'</div>')+'</div>').join(''):'<div class="empty">Пока нет записей. Завершённые тренировки появятся здесь.</div>';
   }
   app.innerHTML=h;
 }
@@ -190,7 +250,7 @@ bar.addEventListener('pointerdown',e=>{
   if(again){again.focus();showBar(again)}
 });
 app.addEventListener('input',e=>{
-  const t=e.target,k=t.dataset.k;if(!k)return;
+  const t=e.target,k=t.dataset.k;if(t.id==='impt'){impText=t.value;return}if(t.id==='dt'){db.cur.date=t.value||today();save();return}if(!k)return;
   const ex=db.cur.exs[+t.dataset.e];
   if(k==='name')ex.name=t.value;else if(k==='note')ex.note=t.value;else ex.sets[+t.dataset.s][k]=t.value;
   save();showBar(t);
@@ -221,16 +281,19 @@ app.addEventListener('click',e=>{
   else if(a==='finish'){
     commit();c.exs=c.exs.filter(x=>x.name.trim());
     if(!c.exs.length){toast('Добавь хотя бы одно упражнение');return}
-    db.workouts.push(c);pushW(c);db.cur=newCur();tab='hist';open=c.id;toast('Тренировка сохранена');
+    db.workouts.push(c);sortW();pushW(c);db.cur=newCur();tab='hist';open=c.id;toast('Тренировка сохранена');
   }
   else if(a==='copycur'){copy(wTxt(c));return}
   else if(a==='open'){open=open===+v?null:+v}
   else if(a==='copyw'){copy(wTxt(db.workouts.find(w=>w.id===+v)));return}
   else if(a==='repeat'){const w=db.workouts.find(x=>x.id===+v);db.cur={id:Date.now(),date:today(),type:w.type,exs:w.exs.map(x=>({name:x.name,note:'',sets:x.sets.map(s=>Object.assign({},s))}))};tab='today';window.scrollTo(0,0)}
+  else if(a==='parse'){const ta=document.getElementById('impt');if(ta)impText=ta.value;imp=parseNotes(impText);impMsg=imp.length?'':'Не нашёл ни одной тренировки. Каждая должна начинаться со строки вроде «14.11 Push».'}
+  else if(a==='doimp'){let n=0,sk=0;imp.forEach((x,i)=>{if(dup(x)){sk++;return}x.id=Date.now()+i;if(x.type&&db.types.indexOf(x.type)<0)db.types.push(x.type);db.workouts.push(x);pushW(x);learn(x);n++});sortW();imp=null;impText='';impMsg='';tab='hist';toast('Добавлено: '+n+(sk?', пропущено: '+sk:''))}
+  else if(a==='editw'){const x=db.workouts.find(q=>q.id===+v);if(db.cur.exs.some(q=>q.name.trim())&&!confirm('Текущий черновик будет заменён. Продолжить?'))return;db.workouts=db.workouts.filter(q=>q.id!==+v);delW(+v);db.cur=JSON.parse(JSON.stringify(x));tab='today';window.scrollTo(0,0)}
   else if(a==='delw'){if(confirm('Удалить эту тренировку?')){db.workouts=db.workouts.filter(w=>w.id!==+v);delW(+v)}}
   save();render();
 });
-render();initCloud();
+sortW();render();initCloud();
 </script>
 </body>
 </html>
