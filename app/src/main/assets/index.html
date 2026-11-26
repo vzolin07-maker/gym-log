@@ -6,54 +6,129 @@
 <meta name="theme-color" content="#14202b">
 <title>Дневник тренировок</title>
 <style>
-:root{--bg:#eef1f4;--card:#fff;--ink:#14202b;--mut:#6b7885;--line:#d5dce3;--acc:#2f5bff;--accink:#fff;--ok:#1f9d6b;--bad:#c93b3b;
+:root{--bg:#f0f3f8;--bg2:#e7ecf4;--card:#fff;--ink:#0e1a2b;--mut:#6a778a;--line:#d9e0ea;--acc:#2f5bff;--acs:#e9eeff;--accink:#fff;--ok:#16a36a;--oks:#e3f6ec;--oks2:#d2efe1;--okd:#0d7a4d;--lo:#1f8fd1;--mid:#d98200;--bad:#d9453f;--sh:0 1px 2px rgba(14,26,43,.06),0 8px 20px rgba(14,26,43,.06);--fd:"Barlow Condensed","Roboto Condensed","Arial Narrow",sans-serif-condensed,sans-serif;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10171e;--card:#18222c;--ink:#e8eef4;--mut:#8b98a5;--line:#2b3744;--acc:#6f8cff;--accink:#0b1220;--ok:#43c690;--bad:#ef7676}}
-:root[data-theme="dark"]{--bg:#10171e;--card:#18222c;--ink:#e8eef4;--mut:#8b98a5;--line:#2b3744;--acc:#6f8cff;--accink:#0b1220;--ok:#43c690;--bad:#ef7676}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c121a;--bg2:#121b26;--card:#16202c;--ink:#e9eff6;--mut:#8a97a8;--line:#27323f;--acc:#7b95ff;--acs:#1c2745;--accink:#0b1220;--ok:#37c88a;--oks:#12301f;--oks2:#173a29;--okd:#7ae0b2;--lo:#52b4f0;--mid:#f0a93a;--bad:#f27a74;--sh:0 1px 2px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.25)}}
+:root[data-theme="dark"]{--bg:#0c121a;--bg2:#121b26;--card:#16202c;--ink:#e9eff6;--mut:#8a97a8;--line:#27323f;--acc:#7b95ff;--acs:#1c2745;--accink:#0b1220;--ok:#37c88a;--oks:#12301f;--oks2:#173a29;--okd:#7ae0b2;--lo:#52b4f0;--mid:#f0a93a;--bad:#f27a74;--sh:0 1px 2px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.25)}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Barlow,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
 main{max-width:560px;margin:0 auto;padding:14px 14px 150px}
-h1{font:700 30px/1 "Barlow Condensed",Barlow,sans-serif;margin:6px 0 2px;letter-spacing:.2px}
-.date{color:var(--mut);margin-bottom:12px}
-.tabs{display:flex;gap:6px;margin:10px 0 14px}
+h1{font:700 32px/1 var(--fd);margin:8px 0 4px;letter-spacing:.6px;text-transform:uppercase}
+h1::after{content:"";display:block;width:44px;height:4px;border-radius:2px;background:var(--acc);margin-top:8px}
 button{font:inherit;color:inherit;cursor:pointer}
-.tab{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);border-radius:10px;font-weight:600}
-.tab.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.chip{padding:7px 14px;border:1px solid var(--line);background:var(--card);border-radius:999px;font-weight:600}
-.chip.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
-.ex{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
-.row{display:flex;gap:8px;align-items:center}
-input{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px;width:100%;min-width:0}
-input:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
-.nm{font:700 20px "Barlow Condensed",Barlow,sans-serif}
-.x{border:0;background:none;color:var(--mut);font-size:24px;padding:4px 8px}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .hint{color:var(--mut);font-size:14px;margin:6px 0 8px}
-.set{padding:8px 0;border-top:1px dashed var(--line)}
+.tabs{display:flex;gap:4px;margin:10px 0 16px;padding:4px;background:var(--bg2);border-radius:14px}
+.tab{flex:1;padding:10px 2px;border:0;background:transparent;border-radius:11px;font-weight:600;font-size:14px;color:var(--mut)}
+.tab.on{background:var(--acc);color:var(--accink);box-shadow:0 4px 12px rgba(47,91,255,.35)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{padding:8px 16px;border:1.5px solid var(--line);background:var(--card);border-radius:999px;font-weight:600}
+.chip.on{background:var(--acc);color:var(--accink);border-color:var(--acc);box-shadow:0 4px 12px rgba(47,91,255,.3)}
+input,textarea{font:inherit;color:inherit;background:var(--bg2);border:1.5px solid transparent;border-radius:10px;padding:11px;width:100%;min-width:0}
+input:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acs)}
+input::placeholder,textarea::placeholder{color:var(--mut);opacity:.7}
+textarea{background:var(--card);border-color:var(--line);min-height:200px;margin-bottom:6px}
+.dt{width:auto;margin-bottom:12px;font-weight:700;background:var(--card);border:1.5px solid var(--line);padding:9px 12px;border-radius:12px}
+.ex{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:var(--sh)}
+.row{display:flex;gap:8px;align-items:center}
+.ex .nm{font:700 23px var(--fd);background:transparent;border:0;border-bottom:2px solid var(--line);border-radius:0;padding:6px 2px;box-shadow:none}
+.ex .nm:focus{border-bottom-color:var(--acc);box-shadow:none}
+.x{border:0;background:none;color:var(--mut);font-size:26px;padding:4px 10px;width:auto}
+.ex .hint{background:var(--acs);border-radius:10px;padding:8px 10px;color:var(--ink);margin:10px 0 8px}
+.set{padding:10px 0;border-top:1px dashed var(--line)}
 .nums{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:6px;align-items:center;text-align:center;color:var(--mut)}
-.nums input{text-align:center;font-weight:600;font-size:18px}
-.opts{display:flex;gap:6px;margin-top:6px}
-.opt{flex:1;padding:7px;border:1px solid var(--line);background:var(--bg);border-radius:9px;font-size:14px}
-.opt.l{color:var(--ok);border-color:var(--ok)}.opt.m{color:var(--acc);border-color:var(--acc)}.opt.h{color:var(--bad);border-color:var(--bad)}
+.nums input{text-align:center;font:700 25px var(--fd);padding:9px 4px}
+.opts{display:flex;gap:6px;margin-top:8px}
+.opt{flex:1;padding:9px 6px;border:1.5px solid var(--line);background:var(--card);border-radius:10px;font-size:14px;font-weight:600;color:var(--mut)}
 .opt.s{font-weight:700}
-.opts .x{flex:0 0 auto;font-size:20px}
-.add{width:100%;padding:11px;border:1px dashed var(--mut);background:none;border-radius:10px;color:var(--mut);font-weight:600;margin-top:6px}
-.pri{width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:var(--accink);font-weight:700;font-size:17px;margin-top:10px}
-.sec{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-weight:600;margin-top:8px}
-.note{margin-top:8px}
-.w{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
-.w b{font:700 19px "Barlow Condensed",Barlow,sans-serif}
-.w pre{white-space:pre-wrap;font:inherit;margin:8px 0;color:var(--mut)}
+.opt.l{color:var(--lo);border-color:var(--lo)}.opt.m{color:var(--mid);border-color:var(--mid)}.opt.h{color:var(--bad);border-color:var(--bad)}
+.opts .x{flex:0 0 auto;font-size:22px}
+.add{width:100%;padding:12px;border:1.5px dashed var(--acc);background:transparent;border-radius:12px;color:var(--acc);font-weight:700;margin-top:8px}
+.pri{width:100%;padding:15px;border:0;border-radius:14px;background:var(--acc);color:var(--accink);font-weight:700;font-size:17px;margin-top:12px;box-shadow:0 8px 20px rgba(47,91,255,.35)}
+.sec{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);font-weight:600;margin-top:8px}
+.note{margin-top:10px}
+.w{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:var(--sh)}
+.w b{font:700 21px var(--fd)}
+.w pre{white-space:pre-wrap;font:inherit;font-size:15px;margin:8px 0;color:var(--ink)}
 .empty{color:var(--mut);text-align:center;padding:30px 10px}
-.dt{width:auto;margin-bottom:12px;font-weight:600}
-textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;min-height:200px;margin-bottom:6px}
-#bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));display:none;gap:6px;overflow-x:auto;white-space:nowrap;z-index:20}
+#bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));display:none;gap:6px;overflow-x:auto;white-space:nowrap;z-index:20;box-shadow:0 -6px 18px rgba(14,26,43,.08)}
 #bar.on{display:flex}
-#bar .chip{flex:0 0 auto;background:var(--bg)}
+#bar .chip{flex:0 0 auto;background:var(--acs);border-color:transparent;color:var(--acc);padding:7px 14px;box-shadow:none}
 #bar i{color:var(--mut);font-style:normal;align-self:center;font-size:14px}
-.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;z-index:30;font-weight:600}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:30;font-weight:600;box-shadow:var(--sh)}
+.pl{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--sh)}
+.pl b{font:700 23px var(--fd)}.pl span{color:var(--mut);font-size:14px}
+.pl.dn{border-left-color:var(--ok);background:var(--oks)}
+.pg{display:block;width:100%;height:6px;border-radius:3px;background:var(--bg2);margin-top:8px;overflow:hidden;font-style:normal}
+.pg u{display:block;height:100%;background:var(--ok);text-decoration:none;border-radius:3px}
+.back{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0 10px;font-size:16px}
+.pname{margin-bottom:12px;font-size:28px;font-family:var(--fd);font-weight:700;background:transparent;border:0;border-bottom:2px solid var(--line);border-radius:0}
+.pr{display:flex;gap:8px;margin-bottom:8px;align-items:stretch}
+.prc{display:grid;grid-template-columns:15fr 17fr 15fr 5fr 15fr 26fr 7fr;flex:1;min-width:0;background:var(--card);border:1.5px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--sh)}
+.prc>*{min-width:0;border-right:1px solid var(--line)}.prc>:last-child{border-right:0}
+.prc input{border:0;background:transparent;border-radius:0;text-align:center;font:700 22px var(--fd);padding:0 2px;height:58px}
+.prc>input:first-child{font-size:17px;color:var(--mut)}
+.prc input:focus{background:var(--acs);box-shadow:inset 0 0 0 2px var(--acc)}
+.prc .xx{display:grid;place-items:center;color:var(--mut);font-size:14px;border-right:0;height:58px}
+.prc .pe{border:0;background:transparent;font-size:12px;line-height:1.15;padding:2px;font-weight:700;height:58px;word-break:break-word}
+.pe.l{color:var(--lo)}.pe.m{color:var(--mid)}.pe.h{color:var(--bad)}.pe.e{color:var(--mut);font-size:20px;font-weight:400}
+.prc .pd{border:0;background:none;color:var(--mut);font-size:20px;height:58px;padding:0}
+.prc.ok{background:repeating-linear-gradient(135deg,var(--oks) 0 9px,var(--oks2) 9px 18px);border-color:var(--ok)}
+.prc.ok>*{border-right-color:rgba(22,163,106,.35)}
+.prc.ok input,.prc.ok .pe{color:var(--okd)}
+.ck{flex:0 0 50px;border-radius:14px;border:2px dashed var(--line);background:var(--card);color:var(--line);display:grid;place-items:center;padding:0}
+.ck.on{background:var(--ok);border:2px solid var(--ok);color:#fff;box-shadow:0 6px 16px rgba(22,163,106,.4)}
+.pr.ph{margin-bottom:4px}
+.prc.hd{background:transparent;border:0;box-shadow:none;overflow:visible}
+.prc.hd>*{border:0;text-align:center;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mut)}
+.ck.sp{visibility:hidden;border:0}
+.plh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 8px;padding:10px 12px;border:1.5px dashed var(--acc);border-radius:12px;background:var(--card)}
+.plh small{display:block;color:var(--mut);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.plh b{font:700 24px var(--fd)}.plh em{font-style:normal;margin-left:8px;color:var(--mid);font-weight:700;font-size:14px}
+.plb{flex:0 0 auto;border:0;background:var(--acc);color:var(--accink);padding:10px 14px;border-radius:10px;font-weight:700}
+.plh.dn{border-color:var(--ok);background:var(--oks);color:var(--okd);font-weight:700;justify-content:flex-start}
+mark{background:var(--acs);color:var(--acc);border-radius:4px;padding:0 2px;font-weight:700}
+.hs{margin-bottom:12px;background:var(--card);border:1.5px solid var(--line)}
+.toast{max-width:90vw;text-align:center;animation:tin .25s ease}
+@keyframes vin{from{opacity:0;transform:translateX(var(--dx,18px))}to{opacity:1;transform:none}}
+@keyframes cin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.3)}100%{transform:scale(1);opacity:1}}
+@keyframes flash{from{box-shadow:0 0 0 0 rgba(22,163,106,.55)}to{box-shadow:0 0 0 16px rgba(22,163,106,0)}}
+@keyframes tin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.view.anim{animation:vin .3s cubic-bezier(.2,.8,.2,1)}
+.pr.pop .ck svg{animation:pop .38s cubic-bezier(.3,1.6,.5,1)}
+.pr.pop .prc{animation:flash .6s ease-out}
+button{transition:transform .15s ease,box-shadow .2s ease,background-color .2s ease,border-color .2s ease,color .2s ease,filter .2s ease}
+.pri:active{transform:translateY(1px) scale(.98);filter:brightness(.95);box-shadow:0 3px 8px rgba(47,91,255,.3)}
+.ck:active{transform:scale(.9)}
+@media (hover:hover){
+.tab:not(.on):hover{background:var(--card);color:var(--ink)}
+.chip:hover{border-color:var(--acc);transform:translateY(-1px)}
+.chip.on:hover,.plb:hover,.back:hover{filter:brightness(1.1)}
+.pri:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 12px 26px rgba(47,91,255,.45)}
+.sec:hover,.opt:hover{border-color:var(--acc);transform:translateY(-1px)}
+.pl:hover,.w:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(14,26,43,.08),0 12px 26px rgba(14,26,43,.1)}
+.add:hover{background:var(--acs)}
+.ck:hover{border-color:var(--ok);color:var(--ok)}
+.ck.on:hover{color:#fff;filter:brightness(1.08)}
+.x:hover,.pd:hover{color:var(--bad)}
+.pe:hover,.ch:hover{background:var(--acs)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.pl,.w{transition:transform .2s ease,box-shadow .2s ease}
+.calc{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--mid);border-radius:16px;margin-bottom:12px;box-shadow:var(--sh);overflow:hidden}
+.ch{display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 16px;border:0;background:none;font:700 21px var(--fd);text-align:left}
+.ch i{font-style:normal;color:var(--acc);font-size:26px;line-height:1}
+.calcb{padding:0 16px 14px;animation:cin .28s ease}
+.cr{text-align:center;margin:12px 0 8px}.cr small{display:block;color:var(--mut);font-size:13px;font-weight:600}.cr b{font:700 42px var(--fd);color:var(--acc)}
+.ct{border:1.5px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:8px}
+.cl{display:grid;grid-template-columns:1fr 1fr 60px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);text-align:center}
+.cl:last-child{border-bottom:0}
+.cl span{text-align:left;font-weight:600;color:var(--mut)}.cl b{font:700 23px var(--fd)}.cl i{font-style:normal;color:var(--mut);font-size:14px;text-align:right}
+.cl.me{background:var(--acs)}.cl.me span{color:var(--acc)}
 </style>
 </head>
 <body>
@@ -61,7 +136,7 @@ textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(
 <div id="bar" aria-label="Подсказки"></div>
 <script>
 const K='gymlog1';
-const VER='1.1';
+const VER='1.6';
 let db={workouts:[],cur:null,sug:{},names:[],types:['Push','Pull']};
 try{const s=localStorage.getItem(K);if(s)db=Object.assign(db,JSON.parse(s))}catch(e){}
 let cloud=null,pt=null,syncTxt='Данные только на этом устройстве';
@@ -69,7 +144,7 @@ function setSync(t){syncTxt=t;const e=document.getElementById('sync');if(e)e.tex
 const save=remote=>{if(remote!==true)db.ts=Date.now();try{localStorage.setItem(K,JSON.stringify(db))}catch(e){}if(remote!==true)pushMeta()};
 function pushMeta(){
   if(!cloud)return;clearTimeout(pt);
-  pt=setTimeout(()=>{cloud.doc('meta').set({ts:db.ts||Date.now(),sug:db.sug,names:db.names,types:db.types,cur:db.cur}).catch(()=>setSync('Не удалось синхронизировать'))},1000);
+  pt=setTimeout(()=>{cloud.doc('meta').set({ts:db.ts||Date.now(),sug:db.sug,names:db.names,types:db.types,cur:db.cur,plans:db.plans||[]}).catch(()=>setSync('Не удалось синхронизировать'))},1000);
 }
 function pushW(w){if(cloud)cloud.doc('w_'+w.id).set({w}).catch(()=>{})}
 function delW(id){if(cloud)cloud.doc('w_'+id).delete().catch(()=>{})}
@@ -79,8 +154,8 @@ function applyRemote(snap){
     const id=c.doc.id,d=c.doc.data();
     if(id==='meta'){
       if(c.type==='removed'||!d||!(d.ts>(db.ts||0)))return;
-      const a=document.activeElement;if(a&&a.dataset&&a.dataset.k)return;
-      db.sug=d.sug||{};db.names=d.names||[];db.types=d.types||db.types;if(d.cur)db.cur=d.cur;db.ts=d.ts;ch=true;
+      const a=document.activeElement;if(a&&a.dataset&&(a.dataset.k||a.dataset.pk))return;
+      db.sug=d.sug||{};db.names=d.names||[];db.types=d.types||db.types;if(d.cur)db.cur=d.cur;if(d.plans)db.plans=d.plans;db.ts=d.ts;ch=true;
     }else if(id.indexOf('w_')===0){
       const wid=id.slice(2);
       if(c.type==='removed'){const n=db.workouts.length;db.workouts=db.workouts.filter(w=>String(w.id)!==wid);if(db.workouts.length!==n)ch=true}
@@ -117,7 +192,8 @@ const newSet=()=>({w:'',r:'',n:'',side:'',eff:''});
 const newEx=()=>({name:'',sets:[newSet()],note:''});
 const newCur=()=>({id:Date.now(),date:today(),type:db.types[0]||'',exs:[newEx()]});
 if(!db.cur)db.cur=newCur();
-let tab='today',open=null,impText='',imp=null,impMsg='',bar=document.getElementById('bar'),app=document.getElementById('app');
+if(!db.plans)db.plans=[];
+let tab='today',open=null,planOpen=null,histQ='',popRow=null,lastKey=null,lastOrd=0,calc={w:'',r:'',i:''},calcOpen=false,impText='',imp=null,impMsg='',bar=document.getElementById('bar'),app=document.getElementById('app');
 const SIDE={'':'Оба','П':'Правая','Л':'Левая'},SIDES=['','П','Л'];
 const EFF=['','л','с','т'],EFFN={'':'Нагрузка','л':'Легко','с':'Средне','т':'Тяжело'};
 
@@ -172,6 +248,78 @@ function parseNotes(text){
     return w;
   }).filter(w=>w.exs.length);
 }
+const PE=['','легко','легко-средне','средне','средне-тяжело','тяжело'];
+function newRow(p){return p?{l:/^\d+$/.test(p.l)?String(+p.l+1):'',w:p.w,r:p.r,n:p.n,e:p.e}:{l:'1',w:'',r:'',n:'',e:''}}
+const rd=x=>Math.round(x*2)/2,fk=x=>String(rd(x)).replace('.',',');
+function calcBody(){
+  const w=parseFloat(calc.w),r=parseInt(calc.r,10),rr=parseInt(calc.i,10)||0;
+  if(!(w>0)||!(r>0))return '<div class="hint">Введи вес и повторы, например 50 и 8.</div>';
+  const e=r+Math.max(0,rr);
+  if(e>30)return '<div class="hint">Слишком много повторов для оценки (до 30 вместе с запасом).</div>';
+  const ep=e===1?w:w*(1+e/30),br=w*36/(37-e),m=(ep+br)/2;
+  const at=n=>n===1?m:(m/(1+n/30)+m*(37-n)/36)/2;
+  let h='<div class="cr"><small>Оценка разового максимума (1ПМ)</small><b>≈ '+fk(m)+' кг</b></div>';
+  if(e>12)h+='<div class="hint">Больше 12 повторов: оценка получается неточной.</div>';
+  h+='<div class="ct">';
+  for(let n=1;n<=10;n++){const x=at(n);h+='<div class="cl'+(n===e?' me':'')+'"><span>'+n+' ПМ</span><b>'+fk(x)+' кг</b><i>'+Math.round(x*100/m)+'%</i></div>'}
+  return h+'</div><div class="hint">Среднее двух формул (Эпли и Бжицки), округлено до 0,5 кг. Это ориентир для расчёта, а не рекомендация жать максимум.</div>';
+}
+function calcCard(){
+  return '<div class="calc"><button class="ch" data-a="calc"><span>Калькулятор максимума</span><i>'+(calcOpen?'−':'+')+'</i></button>'+(calcOpen?'<div class="calcb"><div class="nums"><input data-ck="w" inputmode="decimal" placeholder="вес, кг" value="'+esc(calc.w)+'" autocomplete="off"><span>×</span><input data-ck="r" inputmode="numeric" placeholder="повт." value="'+esc(calc.r)+'" autocomplete="off"><span>+</span><input data-ck="i" inputmode="numeric" placeholder="запас" value="'+esc(calc.i)+'" autocomplete="off"></div><div class="hint">Запас: сколько повторов ты мог бы ещё сделать (необязательно).</div><div id="calcres">'+calcBody()+'</div></div>':'')+'</div>';
+}
+const CK='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+function planView(){
+  const i=db.plans.findIndex(p=>p.id===planOpen);
+  if(i<0){
+    let h=calcCard()+'<div class="hint">Выбери упражнение или создай новое. У каждого упражнения своя таблица плана.</div>';
+    db.plans.forEach(p=>{
+      const n=p.rows.length,d=p.rows.filter(x=>x.d).length,r=p.rows.filter(x=>x.w||x.r).slice(-1)[0];
+      h+='<button class="pl'+(n&&d===n?' dn':'')+'" data-a="popen" data-v="'+p.id+'"><b>'+esc(p.name||'Без названия')+'</b><span>'+(r?'Строк: '+n+' · выполнено: '+d+' · последняя: '+esc(r.w||'?')+'×'+esc(r.r||'?')+(r.n?'×'+esc(r.n):''):'Пустой план')+'</span><em class="pg"><u style="width:'+(n?Math.round(d*100/n):0)+'%"></u></em></button>';
+    });
+    if(!db.plans.length)h+='<div class="empty">Планов пока нет.</div>';
+    return h+'<button class="pri" data-a="newplan">+ Новое упражнение</button>';
+  }
+  const p=db.plans[i];
+  let h='<button class="back" data-a="pback">← Все упражнения</button><input class="nm pname" data-pk="name" data-e="'+i+'" placeholder="Название упражнения" value="'+esc(p.name)+'" autocomplete="off">';
+  h+='<div class="pr ph"><div class="prc hd"><span>№ / дата</span><span>Вес</span><span>Повт.</span><span></span><span>Подх.</span><span>Усилие</span><span></span></div><div class="ck sp"></div></div>';
+  p.rows.forEach((r,j)=>{
+    const a='data-e="'+i+'" data-s="'+j+'"',c=!r.e?'e':r.e==='легко'?'l':r.e==='тяжело'?'h':'m';
+    h+='<div class="pr'+(popRow===i+'-'+j?' pop':'')+'"><div class="prc'+(r.d?' ok':'')+'"><input data-pk="l" '+a+' placeholder="№" value="'+esc(r.l)+'" autocomplete="off"><input data-pk="w" '+a+' inputmode="decimal" placeholder="кг" value="'+esc(r.w)+'"><input data-pk="r" '+a+' inputmode="numeric" placeholder="повт" value="'+esc(r.r)+'"><span class="xx">×</span><input data-pk="n" '+a+' inputmode="numeric" placeholder="подх" value="'+esc(r.n)+'"><button class="pe '+c+'" data-a="peff" '+a+'>'+(r.e?esc(r.e):'+')+'</button><button class="pd" data-a="delrow" '+a+' aria-label="Удалить строку">×</button></div><button class="ck'+(r.d?' on':'')+'" data-a="pdone" '+a+' aria-label="Выполнено">'+CK+'</button></div>';
+  });
+  popRow=null;return h+'<button class="add" data-a="addrow" data-e="'+i+'">+ Строка</button><button class="sec" data-a="delplan" data-e="'+i+'">Удалить это упражнение</button>';
+}
+const nz=t=>String(t).toLowerCase().replace(/ё/g,'е');
+const wdn=d=>new Date(d+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long'});
+const wds=d=>new Date(d+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'short'});
+function planFor(name){const n=nz(name).replace(/\s+/g,' ').trim();return n?db.plans.find(p=>nz(p.name).replace(/\s+/g,' ').trim()===n):null}
+function planHint(name,i){
+  const p=planFor(name);if(!p)return '';
+  const j=p.rows.findIndex(r=>!r.d&&(r.w||r.r));
+  if(j<0)return p.rows.some(r=>r.w||r.r)?'<div class="plh dn">✓ План по этому упражнению выполнен</div>':'';
+  const r=p.rows[j];
+  return '<div class="plh"><div><small>План · '+esc(r.l||String(j+1))+'</small><b>'+esc(r.w||'?')+' × '+esc(r.r||'?')+(r.n?' × '+esc(r.n):'')+'</b>'+(r.e?'<em>'+esc(r.e)+'</em>':'')+'</div><button class="plb" data-a="applyplan" data-e="'+i+'">Подставить</button></div>';
+}
+function hl(t,tk){
+  let h=esc(t);
+  tk.forEach(k=>{const re=new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/е/g,'[её]'),'gi');h=h.replace(re,m=>'<mark>'+m+'</mark>')});
+  return h;
+}
+function histSearch(){
+  const tk=nz(histQ).split(/\s+/).filter(Boolean);let n=0,h='';
+  db.workouts.slice().reverse().forEach(w=>{
+    const meta=nz(fmt(w.date)+' '+dmy(w.date)+' '+w.date+' '+wdn(w.date)+' '+wds(w.date)+' '+(w.type||''));
+    w.exs.forEach(e=>{
+      if(!e.name.trim())return;
+      const hay=nz(e.name)+' '+meta;
+      if(!tk.every(t=>hay.indexOf(t)>=0))return;
+      n++;
+      h+='<div class="w"><div class="row" style="justify-content:space-between"><b>'+hl(e.name,tk)+'</b><button class="x" data-a="gow" data-v="'+w.id+'" aria-label="Открыть тренировку">›</button></div><div class="hint" style="margin:2px 0 6px">'+hl(fmt(w.date)+' '+w.date.slice(0,4),tk)+' · '+hl(wdn(w.date),tk)+(w.type?' · '+esc(w.type):'')+'</div><pre>'+esc(e.sets.filter(x=>x.w||x.r).map(setTxt).join('\n'))+'</pre>'+(e.note?'<div class="hint">'+esc(e.note)+'</div>':'')+'</div>';
+    });
+  });
+  return '<div class="hint">Найдено: '+n+'</div>'+(n?h:'<div class="empty">Ничего не найдено.</div>');
+}
+function histBody(){return histQ.trim()?histSearch():db.workouts.length?'<button class="sec" style="margin:0 0 10px" data-a="copyall">Скопировать тренировки (для друга или бэкапа)</button>'+db.workouts.slice().reverse().map(w=>'<div class="w"><div class="row" style="justify-content:space-between"><b>'+fmt(w.date)+', '+wdn(w.date)+(w.type?' · '+esc(w.type):'')+'</b><button class="x" data-a="open" data-v="'+w.id+'" aria-label="Развернуть">'+(open===w.id?'−':'+')+'</button></div>'+
+      (open===w.id?'<pre>'+esc(wTxt(w).split('\n').slice(1).join('\n'))+'</pre><div class="opts"><button class="opt" data-a="editw" data-v="'+w.id+'">Править</button><button class="opt" data-a="repeat" data-v="'+w.id+'">Повторить</button><button class="opt" data-a="copyw" data-v="'+w.id+'">Копировать</button><button class="opt h" data-a="delw" data-v="'+w.id+'">Удалить</button></div>':'<div class="hint">'+esc(w.exs.filter(e=>e.name).map(e=>e.name).join(', '))+'</div>')+'</div>').join(''):'<div class="empty">Пока нет записей. Завершённые тренировки появятся здесь.</div>'}
 function impView(){
   let h='<div class="hint">Вставь текст из заметок или тренировки, которые скинул друг. Каждая тренировка должна начинаться со строки с датой, например «14.11 Push» или «16.11. Понедельник pull».</div><textarea id="impt" placeholder="Вставь заметки сюда">'+esc(impText)+'</textarea><button class="pri" data-a="parse">Разобрать</button>';
   if(impMsg)h+='<div class="hint">'+esc(impMsg)+'</div>';
@@ -207,13 +355,13 @@ function commit(){
 }
 function render(){
   const c=db.cur;
-  let h='<h1>Дневник тренировок</h1><div class="hint" id="sync">'+syncTxt+'</div><div class="tabs"><button class="tab '+(tab==='today'?'on':'')+'" data-a="tab" data-v="today">Тренировка</button><button class="tab '+(tab==='hist'?'on':'')+'" data-a="tab" data-v="hist">История ('+db.workouts.length+')</button><button class="tab '+(tab==='imp'?'on':'')+'" data-a="tab" data-v="imp">Импорт</button></div>';
+  let h='<h1>Дневник тренировок</h1><div class="hint" id="sync">'+syncTxt+'</div><div class="tabs"><button class="tab '+(tab==='today'?'on':'')+'" data-a="tab" data-v="today">Тренировка</button><button class="tab '+(tab==='plans'?'on':'')+'" data-a="tab" data-v="plans">Планы</button><button class="tab '+(tab==='hist'?'on':'')+'" data-a="tab" data-v="hist">История ('+db.workouts.length+')</button><button class="tab '+(tab==='imp'?'on':'')+'" data-a="tab" data-v="imp">Импорт</button></div>';
   if(tab==='today'){
     h+='<input type="date" id="dt" class="dt" value="'+esc(c.date)+'"><div class="chips">'+db.types.map(t=>'<button class="chip '+(c.type===t?'on':'')+'" data-a="type" data-v="'+esc(t)+'">'+esc(t)+'</button>').join('')+'<button class="chip" data-a="newtype">+ Свой день</button></div>';
     c.exs.forEach((e,i)=>{
       const l=lastEx(e.name);
       h+='<section class="ex"><div class="row"><input class="nm" data-k="name" data-e="'+i+'" placeholder="Упражнение" value="'+esc(e.name)+'" autocomplete="off"><button class="x" data-a="delex" data-e="'+i+'" aria-label="Удалить упражнение">×</button></div>';
-      if(l)h+='<div class="hint">В прошлый раз ('+fmt(l.date)+'): '+esc(l.sets.map(setTxt).join('; '))+(l.note?'<br>'+esc(l.note):'')+'</div>';
+      h+=planHint(e.name,i);if(l)h+='<div class="hint">В прошлый раз ('+fmt(l.date)+'): '+esc(l.sets.map(setTxt).join('; '))+(l.note?'<br>'+esc(l.note):'')+'</div>';
       e.sets.forEach((s,j)=>{
         h+='<div class="set"><div class="nums"><input data-k="w" data-e="'+i+'" data-s="'+j+'" inputmode="decimal" placeholder="кг" value="'+esc(s.w)+'"><span>×</span><input data-k="r" data-e="'+i+'" data-s="'+j+'" inputmode="numeric" placeholder="повт." value="'+esc(s.r)+'"><span>×</span><input data-k="n" data-e="'+i+'" data-s="'+j+'" inputmode="numeric" placeholder="подх." value="'+esc(s.n)+'"></div>'+
         '<div class="opts"><button class="opt '+(s.side?'s':'')+'" data-a="side" data-e="'+i+'" data-s="'+j+'">'+SIDE[s.side]+'</button><button class="opt '+(s.eff?'s '+s.eff:'')+'" data-a="eff" data-e="'+i+'" data-s="'+j+'">'+EFFN[s.eff]+'</button><button class="x" data-a="delset" data-e="'+i+'" data-s="'+j+'" aria-label="Удалить подход">×</button></div></div>';
@@ -221,19 +369,20 @@ function render(){
       h+='<button class="add" data-a="addset" data-e="'+i+'">+ Подход</button><input class="note" data-k="note" data-e="'+i+'" placeholder="Заметка: техника, ощущения, план" value="'+esc(e.note)+'" autocomplete="off"></section>';
     });
     h+='<button class="add" data-a="addex">+ Упражнение</button><button class="pri" data-a="finish">Завершить тренировку</button><button class="sec" data-a="copycur">Скопировать текстом</button>';
-  }else if(tab==='imp'){h+=impView()}else{
-    h+=db.workouts.length?'<button class="sec" style="margin:0 0 10px" data-a="copyall">Скопировать тренировки (для друга или бэкапа)</button>'+db.workouts.slice().reverse().map(w=>'<div class="w"><div class="row" style="justify-content:space-between"><b>'+fmt(w.date)+(w.type?' · '+esc(w.type):'')+'</b><button class="x" data-a="open" data-v="'+w.id+'" aria-label="Развернуть">'+(open===w.id?'−':'+')+'</button></div>'+
-      (open===w.id?'<pre>'+esc(wTxt(w).split('\n').slice(1).join('\n'))+'</pre><div class="opts"><button class="opt" data-a="editw" data-v="'+w.id+'">Править</button><button class="opt" data-a="repeat" data-v="'+w.id+'">Повторить</button><button class="opt" data-a="copyw" data-v="'+w.id+'">Копировать</button><button class="opt h" data-a="delw" data-v="'+w.id+'">Удалить</button></div>':'<div class="hint">'+esc(w.exs.filter(e=>e.name).map(e=>e.name).join(', '))+'</div>')+'</div>').join(''):'<div class="empty">Пока нет записей. Завершённые тренировки появятся здесь.</div>';
+  }else if(tab==='imp'){h+=impView()}else if(tab==='plans'){h+=planView()}else{
+    h+='<input id="hs" type="search" class="hs" placeholder="Поиск: упражнение, дата, день недели" value="'+esc(histQ)+'" autocomplete="off"><div id="hres">'+histBody()+'</div>';
   }
-  app.innerHTML=h+'<div class="hint" style="text-align:center;margin-top:20px">Версия '+VER+'</div>';
+  const key=tab+'|'+(planOpen||''),ord=({today:0,plans:2,hist:4,imp:6}[tab]||0)+(tab==='plans'&&planOpen?1:0),chg=key!==lastKey,dx=ord>=lastOrd?18:-18;lastKey=key;lastOrd=ord;
+  app.innerHTML='<div class="view'+(chg?' anim':'')+'" style="--dx:'+dx+'px">'+h+'<div class="hint" style="text-align:center;margin-top:20px">Версия '+VER+'</div></div>';
 }
-function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1600)}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),t.length>30?3400:1600)}
 function copy(t){
   const done=()=>toast('Скопировано');
   if(navigator.clipboard)navigator.clipboard.writeText(t).then(done,()=>fb());else fb();
   function fb(){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){toast('Не удалось скопировать')}a.remove()}
 }
 function sugFor(t){
+  if(t.dataset.pk){const pk=t.dataset.pk,pl=db.plans[+t.dataset.e];if(pk==='name')return db.names;if(pk==='l')return [];const o=db.sug[(pl.name||'').trim()]||db.sug['*']||{};return o[pk]||[]}
   const k=t.dataset.k,e=db.cur.exs[+t.dataset.e];
   if(k==='name')return db.names;
   const o=db.sug[e.name.trim()]||db.sug['*']||{};
@@ -253,26 +402,26 @@ bar.addEventListener('pointerdown',e=>{
   if(again){again.focus();showBar(again)}
 });
 app.addEventListener('input',e=>{
-  const t=e.target,k=t.dataset.k;if(t.id==='impt'){impText=t.value;return}if(t.id==='dt'){db.cur.date=t.value||today();save();return}if(!k)return;
+  const t=e.target,k=t.dataset.k;if(t.id==='impt'){impText=t.value;return}if(t.dataset.ck){calc[t.dataset.ck]=t.value.replace(',','.');const q=document.getElementById('calcres');if(q)q.innerHTML=calcBody();return}if(t.id==='hs'){histQ=t.value;const r=document.getElementById('hres');if(r)r.innerHTML=histBody();return}if(t.id==='dt'){db.cur.date=t.value||today();save();return}if(t.dataset.pk){const pl=db.plans[+t.dataset.e];if(t.dataset.pk==='name')pl.name=t.value;else pl.rows[+t.dataset.s][t.dataset.pk]=t.value;save();showBar(t);return}if(!k)return;
   const ex=db.cur.exs[+t.dataset.e];
   if(k==='name')ex.name=t.value;else if(k==='note')ex.note=t.value;else ex.sets[+t.dataset.s][k]=t.value;
   save();showBar(t);
 });
-app.addEventListener('focusin',e=>{if(e.target.dataset.k)showBar(e.target)});
-app.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.dataset.k)bar.className=''},150));
+app.addEventListener('focusin',e=>{if(e.target.dataset.k||e.target.dataset.pk)showBar(e.target)});
+app.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!(document.activeElement.dataset.k||document.activeElement.dataset.pk))bar.className=''},150));
 app.addEventListener('change',e=>{
-  const t=e.target;if(!t.dataset.k)return;
+  const t=e.target;if(t.dataset.pk){const pl=db.plans[+t.dataset.e],pk=t.dataset.pk;if(pk==='name'){const nm=t.value.trim();if(nm)db.names=[nm].concat(db.names.filter(x=>x!==nm)).slice(0,80)}else if(pk!=='l')addSug((pl.name||'').trim(),pk,t.value);save();return}if(!t.dataset.k)return;
   commit();
   if(t.dataset.k==='name'){
     const ex=db.cur.exs[+t.dataset.e],l=lastEx(ex.name);
     const blank=ex.sets.length===1&&!ex.sets[0].w&&!ex.sets[0].r&&!ex.sets[0].n;
-    if(l&&blank){ex.sets=l.sets.map(s=>Object.assign({},s));save();render()}
+    if(l&&blank){ex.sets=l.sets.map(s=>Object.assign({},s));save()}if(l||planFor(ex.name))render();
   }
 });
 app.addEventListener('click',e=>{
   const b=e.target.closest('[data-a]');if(!b)return;
   const a=b.dataset.a,c=db.cur,i=+b.dataset.e,j=+b.dataset.s,v=b.dataset.v;
-  if(a==='tab'){tab=v}
+  if(a==='tab'){tab=v;if(v==='plans')planOpen=null}
   else if(a==='type'){c.type=v}
   else if(a==='newtype'){const n=prompt('Название дня (например, Legs)');if(n&&n.trim()){db.types.push(n.trim());c.type=n.trim()}}
   else if(a==='addex'){c.exs.push(newEx())}
@@ -284,18 +433,31 @@ app.addEventListener('click',e=>{
   else if(a==='finish'){
     commit();c.exs=c.exs.filter(x=>x.name.trim());
     if(!c.exs.length){toast('Добавь хотя бы одно упражнение');return}
-    db.workouts.push(c);sortW();pushW(c);db.cur=newCur();tab='hist';open=c.id;toast('Тренировка сохранена');
+    const mk=[];
+    if(!c.pm){c.exs.forEach(e=>{const p=planFor(e.name);if(!p||!e.sets.some(x=>x.w||x.r))return;const r=p.rows.find(x=>!x.d&&(x.w||x.r));if(r){r.d=true;mk.push(p.name)}});c.pm=1}
+    db.workouts.push(c);sortW();pushW(c);db.cur=newCur();tab='hist';open=c.id;toast('Тренировка сохранена'+(mk.length?'. В плане отмечено: '+mk.join(', '):''));
   }
   else if(a==='copycur'){copy(wTxt(c,1));return}
   else if(a==='open'){open=open===+v?null:+v}
   else if(a==='copyw'){copy(wTxt(db.workouts.find(w=>w.id===+v),1));return}
   else if(a==='repeat'){const w=db.workouts.find(x=>x.id===+v);db.cur={id:Date.now(),date:today(),type:w.type,exs:w.exs.map(x=>({name:x.name,note:'',sets:x.sets.map(s=>Object.assign({},s))}))};tab='today';window.scrollTo(0,0)}
+  else if(a==='calc'){calcOpen=!calcOpen}
+  else if(a==='newplan'){const q={id:Date.now(),name:'',rows:[newRow(null)]};db.plans.push(q);planOpen=q.id}
+  else if(a==='popen'){planOpen=+v}
+  else if(a==='pback'){planOpen=null}
+  else if(a==='delplan'){if(!confirm('Удалить это упражнение из планов?'))return;db.plans.splice(i,1);planOpen=null}
+  else if(a==='addrow'){const rs=db.plans[i].rows;rs.push(newRow(rs[rs.length-1]))}
+  else if(a==='delrow'){const rs=db.plans[i].rows;rs.splice(j,1);if(!rs.length)rs.push(newRow(null))}
+  else if(a==='applyplan'){const e=c.exs[i],p=planFor(e.name),r=p&&p.rows.find(x=>!x.d&&(x.w||x.r));if(!r)return;if(e.sets.some(x=>x.w||x.r)&&!confirm('Заменить подходы значениями из плана?'))return;e.sets=[{w:r.w,r:r.r,n:r.n,side:'',eff:''}]}
+  else if(a==='gow'){histQ='';open=+v;tab='hist';window.scrollTo(0,0)}
+  else if(a==='pdone'){const r=db.plans[i].rows[j];r.d=!r.d;popRow=r.d?i+'-'+j:null;if(r.d&&navigator.vibrate)navigator.vibrate(15)}
+  else if(a==='peff'){const r=db.plans[i].rows[j];r.e=PE[(PE.indexOf(r.e)+1)%PE.length]}
   else if(a==='parse'){const ta=document.getElementById('impt');if(ta)impText=ta.value;imp=parseNotes(impText);impMsg=imp.length?'':'Не нашёл ни одной тренировки. Каждая должна начинаться со строки вроде «14.11 Push».'}
   else if(a==='doimp'){let n=0,sk=0;imp.forEach((x,i)=>{if(dup(x)){sk++;return}x.id=Date.now()+i;if(x.type&&db.types.indexOf(x.type)<0)db.types.push(x.type);db.workouts.push(x);pushW(x);learn(x);n++});sortW();imp=null;impText='';impMsg='';tab='hist';toast('Добавлено: '+n+(sk?', пропущено: '+sk:''))}
   else if(a==='editw'){const x=db.workouts.find(q=>q.id===+v);if(db.cur.exs.some(q=>q.name.trim())&&!confirm('Текущий черновик будет заменён. Продолжить?'))return;db.workouts=db.workouts.filter(q=>q.id!==+v);delW(+v);db.cur=JSON.parse(JSON.stringify(x));tab='today';window.scrollTo(0,0)}
   else if(a==='copyall'){const r=prompt('Сколько последних тренировок скопировать? Пусто — все','');if(r===null)return;const n=parseInt(r,10),l=n>0?db.workouts.slice(-n):db.workouts;copy(l.map(x=>wTxt(x,1)).join('\n\n'));return}
   else if(a==='delw'){if(confirm('Удалить эту тренировку?')){db.workouts=db.workouts.filter(w=>w.id!==+v);delW(+v)}}
-  save();render();
+  save();render();if(a==='newplan'){const q=app.querySelector('.pname');if(q)q.focus()}
 });
 sortW();render();initCloud();
 </script>
