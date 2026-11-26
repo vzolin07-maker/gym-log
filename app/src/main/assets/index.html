@@ -61,6 +61,7 @@ textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(
 <div id="bar" aria-label="Подсказки"></div>
 <script>
 const K='gymlog1';
+const VER='1.1';
 let db={workouts:[],cur:null,sug:{},names:[],types:['Push','Pull']};
 try{const s=localStorage.getItem(K);if(s)db=Object.assign(db,JSON.parse(s))}catch(e){}
 let cloud=null,pt=null,syncTxt='Данные только на этом устройстве';
@@ -147,6 +148,7 @@ function parseNotes(text){
       }
     }
     if(!w)return;
+    if(/^\/\/\s*/.test(line)){if(ex)ex.c.push(raw.replace(/^[\s\u00a0]*\/\/\s*/,'').trim());return}
     let ln=line;const sm=ln.toLowerCase().match(/^(правая|правый|правой|правую|прав|левая|левый|левой|левую|лев)(?=[\s:.\-–]|$)|^([пл])(?=\s*:)/);
     if(sm){const wd=sm[1]||sm[2];side=wd.charAt(0)==='п'?'П':'Л';ln=ln.slice(sm[0].length).replace(/^[\s:.\-–]+/,'')}
     if(!ln)return;
@@ -157,7 +159,7 @@ function parseNotes(text){
         const end=m.index+m[0].length,nx=i+1<ms.length?ms[i+1].index:ln.length;
         const cm=ln.slice(end,nx).replace(/^[\s,;:]+|[\s,;]+$/g,'');
         ex.sets.push({w:m[1],r:m[2],n:m[3]||'',side:side,eff:effOf(cm)});
-        if(cm)ex.c.push((side?side+': ':'')+cm);
+        if(cm&&!/^(легко|средне|тяжело)$/i.test(cm))ex.c.push((side?side+': ':'')+cm);
       });
       return;
     }
@@ -171,7 +173,7 @@ function parseNotes(text){
   }).filter(w=>w.exs.length);
 }
 function impView(){
-  let h='<div class="hint">Вставь текст из заметок. Каждая тренировка должна начинаться со строки с датой, например «14.11 Push» или «16.11. Понедельник pull».</div><textarea id="impt" placeholder="Вставь заметки сюда">'+esc(impText)+'</textarea><button class="pri" data-a="parse">Разобрать</button>';
+  let h='<div class="hint">Вставь текст из заметок или тренировки, которые скинул друг. Каждая тренировка должна начинаться со строки с датой, например «14.11 Push» или «16.11. Понедельник pull».</div><textarea id="impt" placeholder="Вставь заметки сюда">'+esc(impText)+'</textarea><button class="pri" data-a="parse">Разобрать</button>';
   if(impMsg)h+='<div class="hint">'+esc(impMsg)+'</div>';
   if(imp&&imp.length){
     h+='<div class="hint">Нашёл тренировок: '+imp.length+'. Проверь, всё ли верно.</div>'+imp.map(w=>'<div class="w"><b>'+fmt(w.date)+(w.type?' · '+esc(w.type):'')+'</b>'+(dup(w)?' <span class="hint">(уже есть, будет пропущена)</span>':'')+'<pre>'+esc(wTxt(w).split('\n').slice(1).join('\n'))+'</pre></div>').join('')+'<button class="pri" data-a="doimp">Добавить в историю</button><div class="hint">Любую тренировку потом можно поправить кнопкой «Править» в истории.</div>';
@@ -184,8 +186,9 @@ function lastEx(name){
   return null;
 }
 const setTxt=s=>(s.side?s.side+': ':'')+(s.w||'?')+'×'+(s.r||'?')+(s.n&&s.n!=='1'?'×'+s.n:'')+(s.eff?' '+EFFN[s.eff].toLowerCase():'');
-function wTxt(w){
-  return fmt(w.date)+(w.type?' · '+w.type:'')+'\n'+w.exs.filter(e=>e.name.trim()).map(e=>e.name+'\n'+e.sets.map(setTxt).join('\n')+(e.note?'\n'+e.note:'')).join('\n\n');
+const dmy=d=>d.slice(8,10)+'.'+d.slice(5,7)+'.'+d.slice(0,4);
+function wTxt(w,sh){
+  return (sh?dmy(w.date)+(w.type?' '+w.type:''):fmt(w.date)+(w.type?' · '+w.type:''))+'\n'+w.exs.filter(e=>e.name.trim()).map(e=>e.name+'\n'+e.sets.filter(x=>!sh||x.w||x.r).map(setTxt).join('\n')+(e.note?'\n'+(sh?'// ':'')+e.note:'')).join('\n\n');
 }
 function addSug(name,k,v){
   v=String(v||'').trim();if(!v)return;
@@ -219,10 +222,10 @@ function render(){
     });
     h+='<button class="add" data-a="addex">+ Упражнение</button><button class="pri" data-a="finish">Завершить тренировку</button><button class="sec" data-a="copycur">Скопировать текстом</button>';
   }else if(tab==='imp'){h+=impView()}else{
-    h+=db.workouts.length?db.workouts.slice().reverse().map(w=>'<div class="w"><div class="row" style="justify-content:space-between"><b>'+fmt(w.date)+(w.type?' · '+esc(w.type):'')+'</b><button class="x" data-a="open" data-v="'+w.id+'" aria-label="Развернуть">'+(open===w.id?'−':'+')+'</button></div>'+
+    h+=db.workouts.length?'<button class="sec" style="margin:0 0 10px" data-a="copyall">Скопировать тренировки (для друга или бэкапа)</button>'+db.workouts.slice().reverse().map(w=>'<div class="w"><div class="row" style="justify-content:space-between"><b>'+fmt(w.date)+(w.type?' · '+esc(w.type):'')+'</b><button class="x" data-a="open" data-v="'+w.id+'" aria-label="Развернуть">'+(open===w.id?'−':'+')+'</button></div>'+
       (open===w.id?'<pre>'+esc(wTxt(w).split('\n').slice(1).join('\n'))+'</pre><div class="opts"><button class="opt" data-a="editw" data-v="'+w.id+'">Править</button><button class="opt" data-a="repeat" data-v="'+w.id+'">Повторить</button><button class="opt" data-a="copyw" data-v="'+w.id+'">Копировать</button><button class="opt h" data-a="delw" data-v="'+w.id+'">Удалить</button></div>':'<div class="hint">'+esc(w.exs.filter(e=>e.name).map(e=>e.name).join(', '))+'</div>')+'</div>').join(''):'<div class="empty">Пока нет записей. Завершённые тренировки появятся здесь.</div>';
   }
-  app.innerHTML=h;
+  app.innerHTML=h+'<div class="hint" style="text-align:center;margin-top:20px">Версия '+VER+'</div>';
 }
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1600)}
 function copy(t){
@@ -283,13 +286,14 @@ app.addEventListener('click',e=>{
     if(!c.exs.length){toast('Добавь хотя бы одно упражнение');return}
     db.workouts.push(c);sortW();pushW(c);db.cur=newCur();tab='hist';open=c.id;toast('Тренировка сохранена');
   }
-  else if(a==='copycur'){copy(wTxt(c));return}
+  else if(a==='copycur'){copy(wTxt(c,1));return}
   else if(a==='open'){open=open===+v?null:+v}
-  else if(a==='copyw'){copy(wTxt(db.workouts.find(w=>w.id===+v)));return}
+  else if(a==='copyw'){copy(wTxt(db.workouts.find(w=>w.id===+v),1));return}
   else if(a==='repeat'){const w=db.workouts.find(x=>x.id===+v);db.cur={id:Date.now(),date:today(),type:w.type,exs:w.exs.map(x=>({name:x.name,note:'',sets:x.sets.map(s=>Object.assign({},s))}))};tab='today';window.scrollTo(0,0)}
   else if(a==='parse'){const ta=document.getElementById('impt');if(ta)impText=ta.value;imp=parseNotes(impText);impMsg=imp.length?'':'Не нашёл ни одной тренировки. Каждая должна начинаться со строки вроде «14.11 Push».'}
   else if(a==='doimp'){let n=0,sk=0;imp.forEach((x,i)=>{if(dup(x)){sk++;return}x.id=Date.now()+i;if(x.type&&db.types.indexOf(x.type)<0)db.types.push(x.type);db.workouts.push(x);pushW(x);learn(x);n++});sortW();imp=null;impText='';impMsg='';tab='hist';toast('Добавлено: '+n+(sk?', пропущено: '+sk:''))}
   else if(a==='editw'){const x=db.workouts.find(q=>q.id===+v);if(db.cur.exs.some(q=>q.name.trim())&&!confirm('Текущий черновик будет заменён. Продолжить?'))return;db.workouts=db.workouts.filter(q=>q.id!==+v);delW(+v);db.cur=JSON.parse(JSON.stringify(x));tab='today';window.scrollTo(0,0)}
+  else if(a==='copyall'){const r=prompt('Сколько последних тренировок скопировать? Пусто — все','');if(r===null)return;const n=parseInt(r,10),l=n>0?db.workouts.slice(-n):db.workouts;copy(l.map(x=>wTxt(x,1)).join('\n\n'));return}
   else if(a==='delw'){if(confirm('Удалить эту тренировку?')){db.workouts=db.workouts.filter(w=>w.id!==+v);delW(+v)}}
   save();render();
 });
